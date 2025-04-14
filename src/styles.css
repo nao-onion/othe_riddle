@@ -4,13 +4,6 @@
     padding: 20px;
 }
 
-#board {
-    display: grid;
-    gap: 2px;
-    margin: 20px auto;
-    background-color: green;
-}
-
 .cell {
     width: 50px;
     height: 50px;
@@ -36,15 +29,24 @@
 .white {
     background-color: white;
 }
-
+/* styles.css */
 #imageOverlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
+    background-color: white; /* 背景を白に設定 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     z-index: 100;
+}
+
+#board {
+    display: grid;
+    gap: 2px;
+    margin: 20px auto;
+    background-color: green;
+    width: fit-content; /* 盤面のサイズに合わせる */
 }

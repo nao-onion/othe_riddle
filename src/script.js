@@ -12,14 +12,58 @@ function startGame() {
     }
 
     boardSize = parseInt(document.getElementById('boardSize').value);
-    uploadedImage = URL.createObjectURL(document.getElementById('imageUpload').files[0]);
     
-    document.getElementById('settingsScreen').style.display = 'none';
-    document.getElementById('gameScreen').style.display = 'block';
-    
-    initializeBoard();
+    // 画像の処理を非同期で行う
+    const file = document.getElementById('imageUpload').files[0];
+    processImage(file).then(processedImageUrl => {
+        uploadedImage = processedImageUrl;
+        document.getElementById('settingsScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        initializeBoard();
+    });
 }
 
+// 画像の処理（リサイズと中央配置）
+function processImage(file) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const boardPixelSize = boardSize * 50; // 盤面のピクセルサイズ
+            canvas.width = boardPixelSize;
+            canvas.height = boardPixelSize;
+            const ctx = canvas.getContext('2d');
+
+            // 画像のアスペクト比を維持しながらリサイズ
+            let newWidth, newHeight;
+            const aspectRatio = img.width / img.height;
+
+            if (aspectRatio > 1) {
+                // 横長の画像
+                newWidth = boardPixelSize;
+                newHeight = boardPixelSize / aspectRatio;
+            } else {
+                // 縦長の画像
+                newHeight = boardPixelSize;
+                newWidth = boardPixelSize * aspectRatio;
+            }
+
+            // 中央に配置するためのオフセットを計算
+            const offsetX = (boardPixelSize - newWidth) / 2;
+            const offsetY = (boardPixelSize - newHeight) / 2;
+
+            // 背景を白で塗りつぶし
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, boardPixelSize, boardPixelSize);
+
+            // 画像を中央に描画
+            ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
+
+            resolve(canvas.toDataURL());
+        };
+        img.src = URL.createObjectURL(file);
+    });
+}
 function initializeBoard() {
     gameBoard = Array(boardSize).fill().map(() => Array(boardSize).fill(null));
     const board = document.getElementById('board');
@@ -67,6 +111,11 @@ function showImage() {
     overlay.style.webkitMaskImage = createMask();
     overlay.style.maskImage = createMask();
 
+    // 画像の表示スタイルを調整
+    overlay.style.backgroundSize = 'contain';
+    overlay.style.backgroundPosition = 'center';
+    overlay.style.backgroundRepeat = 'no-repeat';
+
     document.getElementById('showImageBtn').style.display = 'none';
     
     imageTimer = setTimeout(() => {
@@ -74,6 +123,7 @@ function showImage() {
         currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
     }, 30000);
 }
+
 
 function createMask() {
     const canvas = document.createElement('canvas');
