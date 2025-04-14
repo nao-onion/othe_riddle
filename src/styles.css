@@ -76,7 +76,8 @@ select#boardSize:focus {
     padding: 10px;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    width: fit-content
+    width: fit-content;
+    position: relative;
 }
 
 .cell {
@@ -203,10 +204,14 @@ button[onclick="startGame()"]:hover {
 }
 
 #imageOverlay {
-    position: absolute;
-    background-size: 100% 100% !important;
+    position: absolute; /* fixedからabsoluteに変更 */
+    background-color: white;
+    background-position: center;
     background-repeat: no-repeat;
+    background-size: 100% 100%;
     z-index: 100;
     border-radius: 10px;
-    overflow: hidden;
+    padding: 10px; 
+    box-sizing: border-box; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
