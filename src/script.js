@@ -1,9 +1,9 @@
-// script.js
 let boardSize;
 let gameBoard;
 let currentPlayer = 'black';
 let uploadedImage = null;
 let imageTimer = null;
+let countdownInterval = null;
 
 function startGame() {
     if (!document.getElementById('imageUpload').files[0]) {
@@ -13,7 +13,6 @@ function startGame() {
 
     boardSize = parseInt(document.getElementById('boardSize').value);
     
-    // 画像の処理を非同期で行う
     const file = document.getElementById('imageUpload').files[0];
     processImage(file).then(processedImageUrl => {
         uploadedImage = processedImageUrl;
@@ -23,40 +22,32 @@ function startGame() {
     });
 }
 
-// 画像の処理（リサイズと中央配置）
 function processImage(file) {
     return new Promise((resolve) => {
         const img = new Image();
         img.onload = () => {
             const canvas = document.createElement('canvas');
-            const boardPixelSize = boardSize * 50; // 盤面のピクセルサイズ
+            const boardPixelSize = boardSize * 50;
             canvas.width = boardPixelSize;
             canvas.height = boardPixelSize;
             const ctx = canvas.getContext('2d');
 
-            // 画像のアスペクト比を維持しながらリサイズ
             let newWidth, newHeight;
             const aspectRatio = img.width / img.height;
 
             if (aspectRatio > 1) {
-                // 横長の画像
                 newWidth = boardPixelSize;
                 newHeight = boardPixelSize / aspectRatio;
             } else {
-                // 縦長の画像
                 newHeight = boardPixelSize;
                 newWidth = boardPixelSize * aspectRatio;
             }
 
-            // 中央に配置するためのオフセットを計算
             const offsetX = (boardPixelSize - newWidth) / 2;
             const offsetY = (boardPixelSize - newHeight) / 2;
 
-            // 背景を白で塗りつぶし
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, boardPixelSize, boardPixelSize);
-
-            // 画像を中央に描画
             ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
 
             resolve(canvas.toDataURL());
@@ -64,13 +55,16 @@ function processImage(file) {
         img.src = URL.createObjectURL(file);
     });
 }
+
 function initializeBoard() {
     gameBoard = Array(boardSize).fill().map(() => Array(boardSize).fill(null));
     const board = document.getElementById('board');
+    
+    // グリッドのテンプレート設定を修正
     board.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`;
+    board.style.gridTemplateRows = `repeat(${boardSize}, 50px)`;
     board.innerHTML = '';
 
-    // 初期配置
     const mid = Math.floor(boardSize/2);
     gameBoard[mid-1][mid-1] = 'white';
     gameBoard[mid-1][mid] = 'black';
@@ -90,6 +84,8 @@ function initializeBoard() {
             board.appendChild(cell);
         }
     }
+    
+    updateTurnIndicator();
 }
 
 function makeMove(row, col) {
@@ -104,38 +100,66 @@ function makeMove(row, col) {
 
 function showImage() {
     const overlay = document.getElementById('imageOverlay');
+    const board = document.getElementById('board');
+    const boardRect = board.getBoundingClientRect();
+
+    // オーバーレイの位置とサイズを設定
     overlay.style.display = 'block';
+    overlay.style.top = `${boardRect.top}px`;
+    overlay.style.left = `${boardRect.left}px`;
+    overlay.style.width = `${boardRect.width}px`;
+    overlay.style.height = `${boardRect.height}px`;
+
+    // 背景画像を設定
     overlay.style.backgroundImage = `url(${uploadedImage})`;
     
-    // マスクの作成
-    overlay.style.webkitMaskImage = createMask();
-    overlay.style.maskImage = createMask();
-
-    // 画像の表示スタイルを調整
-    overlay.style.backgroundSize = 'contain';
-    overlay.style.backgroundPosition = 'center';
-    overlay.style.backgroundRepeat = 'no-repeat';
+    // マスクを適用
+    const maskImage = createMask();
+    overlay.style.webkitMaskImage = maskImage;
+    overlay.style.maskImage = maskImage;
 
     document.getElementById('showImageBtn').style.display = 'none';
+    document.getElementById('closeImageBtn').style.display = 'block';
     
+    const timerDisplay = document.getElementById('timerDisplay');
+    const countdown = document.getElementById('countdown');
+    timerDisplay.style.display = 'block';
+    countdown.textContent = '30';
+    countdown.style.color = '#333';
+    
+    let timeLeft = 30;
+    
+    countdownInterval = setInterval(() => {
+        timeLeft--;
+        countdown.textContent = timeLeft;
+        
+        if (timeLeft <= 10) {
+            countdown.style.color = '#ff0000';
+        }
+        
+        if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+        }
+    }, 1000);
+
     imageTimer = setTimeout(() => {
-        overlay.style.display = 'none';
-        currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
+        closeImage();
     }, 30000);
 }
 
-
 function createMask() {
     const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = boardSize * 50;
-    canvas.height = boardSize * 50;
+    const cellSize = document.querySelector('.cell').offsetWidth;
+    canvas.width = cellSize * boardSize;
+    canvas.height = cellSize * boardSize;
     
+    const ctx = canvas.getContext('2d');
     ctx.fillStyle = 'black';
+    
     for (let i = 0; i < boardSize; i++) {
         for (let j = 0; j < boardSize; j++) {
             if (gameBoard[i][j] === currentPlayer) {
-                ctx.fillRect(j * 50, i * 50, 50, 50);
+                ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
             }
         }
     }
@@ -143,8 +167,25 @@ function createMask() {
     return `url(${canvas.toDataURL()})`;
 }
 
+function closeImage() {
+    if (imageTimer) {
+        clearTimeout(imageTimer);
+        imageTimer = null;
+    }
+    
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+    }
+    
+    document.getElementById('imageOverlay').style.display = 'none';
+    document.getElementById('closeImageBtn').style.display = 'none';
+    document.getElementById('timerDisplay').style.display = 'none';
+    currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
+    updateTurnIndicator();
+}
+
 function isValidMove(row, col) {
-    // オセロのルールに基づく有効な手かどうかをチェック
     const directions = [
         [-1, -1], [-1, 0], [-1, 1],
         [0, -1],           [0, 1],
@@ -209,13 +250,31 @@ function updateBoard() {
     }
 }
 
+function updateTurnIndicator() {
+    const disc = document.getElementById('currentPlayerDisc');
+    disc.className = 'disc ' + currentPlayer;
+}
+
 function resetGame() {
-    if (imageTimer) clearTimeout(imageTimer);
+    if (imageTimer) {
+        clearTimeout(imageTimer);
+        imageTimer = null;
+    }
+    
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+    }
+    
     document.getElementById('gameScreen').style.display = 'none';
     document.getElementById('settingsScreen').style.display = 'block';
     document.getElementById('imageUpload').value = '';
     document.getElementById('imageOverlay').style.display = 'none';
+    document.getElementById('closeImageBtn').style.display = 'none';
+    document.getElementById('timerDisplay').style.display = 'none';
     currentPlayer = 'black';
+    updateTurnIndicator();
 }
 
 document.getElementById('showImageBtn').onclick = showImage;
+document.getElementById('closeImageBtn').onclick = closeImage;

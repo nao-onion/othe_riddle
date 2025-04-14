@@ -2,32 +2,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>画像オセロゲーム</title>
+    <title>Othe-riddle</title>
     <link rel="stylesheet" href="src/styles.css">
 </head>
 <body>
     <div id="settingsScreen" class="screen">
-        <h2>ゲーム設定</h2>
-        <div>
-            <label>盤面サイズ:</label>
+        <h2>オセロゲーム設定</h2>
+        <div class="settings-group">
+            <label>盤面サイズを選択</label>
             <select id="boardSize">
-                <option value="6">6x6</option>
-                <option value="8">8x8</option>
-                <option value="10">10x10</option>
+                <option value="6">6 x 6</option>
+                <option value="8">8 x 8</option>
+                <option value="10">10 x 10</option>
             </select>
         </div>
-        <div>
-            <label>画像アップロード:</label>
-            <input type="file" id="imageUpload" accept="image/*">
+        <div class="settings-group">
+            <label>画像をアップロード</label>
+            <div class="file-upload">
+                <input type="file" id="imageUpload" accept="image/*">
+                <p>クリックして画像を選択<br>または<br>ドラッグ&ドロップ</p>
+            </div>
         </div>
-        <button onclick="startGame()">ゲーム開始</button>
+        <button onclick="startGame()">ゲームを開始する</button>
     </div>
 
+    <!-- index.html に追加 -->
     <div id="gameScreen" class="screen" style="display: none;">
+        <div id="turnIndicator" class="turn-indicator">
+            <div id="currentPlayerDisc" class="disc"></div>
+            <span>の番です</span>
+        </div>
         <div id="board"></div>
         <div id="controls">
+        <!-- index.html のcontrols divを修正 -->
             <button id="showImageBtn" style="display: none;">問題表示</button>
+            <button id="closeImageBtn" style="display: none;">画像を閉じる</button>
             <button onclick="resetGame()">リセット</button>
+        </div>
+        <!-- index.html のimageOverlay divの前に追加 -->
+        <div id="timerDisplay" style="display: none;">
+            残り時間: <span id="countdown">30</span>秒
         </div>
         <div id="imageOverlay" style="display: none;"></div>
     </div>
