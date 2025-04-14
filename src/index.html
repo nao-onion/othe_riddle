@@ -1,0 +1,37 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>画像オセロゲーム</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="settingsScreen" class="screen">
+        <h2>ゲーム設定</h2>
+        <div>
+            <label>盤面サイズ:</label>
+            <select id="boardSize">
+                <option value="6">6x6</option>
+                <option value="8">8x8</option>
+                <option value="10">10x10</option>
+            </select>
+        </div>
+        <div>
+            <label>画像アップロード:</label>
+            <input type="file" id="imageUpload" accept="image/*">
+        </div>
+        <button onclick="startGame()">ゲーム開始</button>
+    </div>
+
+    <div id="gameScreen" class="screen" style="display: none;">
+        <div id="board"></div>
+        <div id="controls">
+            <button id="showImageBtn" style="display: none;">問題表示</button>
+            <button onclick="resetGame()">リセット</button>
+        </div>
+        <div id="imageOverlay" style="display: none;"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
