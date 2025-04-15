@@ -35,13 +35,15 @@
         <div id="board">
 
         </div>
-        <div id="controls">
-        <!-- index.html のcontrols divを修正 -->
+        <div class="main-controls">
             <button id="showImageBtn" style="display: none;">問題表示</button>
             <button id="closeImageBtn" style="display: none;">画像を閉じる</button>
-            <button onclick="resetGame()">リセット</button>
         </div>
-        <!-- index.html のimageOverlay divの前に追加 -->
+        <div class="sub-controls">
+            <button id="showFullImageBtn" class="secondary-btn">全体画像を表示</button>
+            <button id="closeFullImageBtn" class="secondary-btn" style="display: none;">全体画像を閉じる</button>
+            <button id="resetBtn" onclick="showResetConfirmation()" class="secondary-btn">リセット</button>
+        </div>
         <div id="timerDisplay" style="display: none;">
             残り時間: <span id="countdown">30</span>秒
         </div>
@@ -49,5 +51,27 @@
     </div>
 
     <script src="src/script.js"></script>
+    <!-- モーダル部分 -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h3>確認</h3>
+            <p>ゲームをリセットしますか？<br>設定画面に戻ります。</p>
+            <div class="modal-buttons">
+                <button onclick="confirmReset(false)" class="cancel-btn">キャンセル</button>
+                <button onclick="confirmReset(true)" class="confirm-btn">リセット</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmFullImageModal" class="modal">
+        <div class="modal-content">
+            <h3>確認</h3>
+            <p>全体の画像を表示しますか？<br>相手に画像が見えてしまう可能性があります。</p>
+            <div class="modal-buttons">
+                <button onclick="confirmShowFullImage(false)" class="cancel-btn">キャンセル</button>
+                <button onclick="confirmShowFullImage(true)" class="confirm-btn">表示する</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

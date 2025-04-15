@@ -283,26 +283,158 @@ function updateTurnIndicator() {
     disc.className = 'disc ' + currentPlayer;
 }
 
-function resetGame() {
-    if (imageTimer) {
-        clearTimeout(imageTimer);
-        imageTimer = null;
-    }
+// function resetGame() {
+//     const isConfirmed = confirm('ゲームをリセットしますか？\n設定画面に戻ります。');
     
-    if (countdownInterval) {
-        clearInterval(countdownInterval);
-        countdownInterval = null;
-    }
+//     if (!isConfirmed) {
+//         return;
+//     }
     
-    document.getElementById('gameScreen').style.display = 'none';
-    document.getElementById('settingsScreen').style.display = 'block';
-    document.getElementById('imageUpload').value = '';
-    document.getElementById('imageOverlay').style.display = 'none';
-    document.getElementById('closeImageBtn').style.display = 'none';
-    document.getElementById('timerDisplay').style.display = 'none';
-    currentPlayer = 'black';
-    updateTurnIndicator();
+//     if (imageTimer) {
+//         clearTimeout(imageTimer);
+//         imageTimer = null;
+//     }
+    
+//     if (countdownInterval) {
+//         clearInterval(countdownInterval);
+//         countdownInterval = null;
+//     }
+    
+//     document.getElementById('gameScreen').style.display = 'none';
+//     document.getElementById('settingsScreen').style.display = 'block';
+//     document.getElementById('imageUpload').value = '';
+//     document.getElementById('imageOverlay').style.display = 'none';
+//     document.getElementById('closeImageBtn').style.display = 'none';
+//     document.getElementById('showFullImageBtn').style.display = 'inline-block';
+//     document.getElementById('closeFullImageBtn').style.display = 'none';
+//     document.getElementById('timerDisplay').style.display = 'none';
+//     currentPlayer = 'black';
+//     updateTurnIndicator();
+// }
+
+
+// モーダル表示用の共通関数
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.style.display = 'flex';
+    // 強制リフロー
+    modal.offsetHeight;
+    modal.classList.add('show');
 }
 
-document.getElementById('showImageBtn').onclick = showImage;
-document.getElementById('closeImageBtn').onclick = closeImage;
+// モーダルを閉じる共通関数
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('show');
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300); // アニメーション時間と合わせる
+}
+
+// リセット確認モーダルを表示
+function showResetConfirmation() {
+    showModal('confirmModal');
+}
+
+// 全体画像表示の確認モーダルを表示
+function showFullImageConfirmation() {
+    showModal('confirmFullImageModal');
+}
+
+// リセット確認の結果を処理
+function confirmReset(confirmed) {
+    closeModal('confirmModal');
+    
+    if (confirmed) {
+        // 少し遅延を入れて、モーダルが閉じてから実行
+        setTimeout(() => {
+            if (imageTimer) {
+                clearTimeout(imageTimer);
+                imageTimer = null;
+            }
+            
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('settingsScreen').style.display = 'block';
+            document.getElementById('imageUpload').value = '';
+            document.getElementById('imageOverlay').style.display = 'none';
+            document.getElementById('closeImageBtn').style.display = 'none';
+            document.getElementById('showFullImageBtn').style.display = 'inline-block';
+            document.getElementById('closeFullImageBtn').style.display = 'none';
+            document.getElementById('timerDisplay').style.display = 'none';
+            currentPlayer = 'black';
+            updateTurnIndicator();
+        }, 300);
+    }
+}
+
+// 全体画像表示の確認結果を処理
+function confirmShowFullImage(confirmed) {
+    closeModal('confirmFullImageModal');
+    
+    if (confirmed) {
+        // 少し遅延を入れて、モーダルが閉じてから実行
+        setTimeout(() => {
+            showFullImage();
+        }, 300);
+    }
+}
+
+// 全体画像を表示
+function showFullImage() {
+    // 既存のoverlayがあれば削除
+    let existingOverlay = document.getElementById('imageOverlay');
+    if (existingOverlay) {
+        existingOverlay.remove();
+    }
+
+    // 新しいoverlay要素を作成
+    const overlay = document.createElement('div');
+    overlay.id = 'imageOverlay';
+    
+    const board = document.getElementById('board');
+
+    overlay.style.display = 'block';
+    overlay.style.position = 'absolute';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.boxSizing = 'border-box';
+    overlay.style.padding = '10px';
+    overlay.style.gap = '4px';
+
+    overlay.style.backgroundImage = `url(${uploadedImage})`;
+    overlay.style.backgroundSize = '100% 100%';
+    
+    // マスクは適用しない（全体表示）
+
+    board.appendChild(overlay);
+
+    // ボタンの表示状態を更新
+    document.getElementById('showFullImageBtn').style.display = 'none';
+    document.getElementById('closeFullImageBtn').style.display = 'inline-block';
+}
+
+// 全体画像を閉じる
+function closeFullImage() {
+    const overlay = document.getElementById('imageOverlay');
+    if (overlay && overlay.parentNode) {
+        overlay.parentNode.removeChild(overlay);
+    }
+    
+    // ボタンの表示状態を更新
+    document.getElementById('showFullImageBtn').style.display = 'inline-block';
+    document.getElementById('closeFullImageBtn').style.display = 'none';
+}
+// 初期化時にイベントリスナーを追加
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('showImageBtn').onclick = showImage;
+    document.getElementById('closeImageBtn').onclick = closeImage;
+    document.getElementById('showFullImageBtn').onclick = showFullImageConfirmation;
+    document.getElementById('closeFullImageBtn').onclick = closeFullImage;
+});
