@@ -28,6 +28,8 @@
 
     <!-- index.html に追加 -->
     <div id="gameScreen" class="screen" style="display: none;">
+        <div id="title">オセロ-リドル</div>
+        <div id="title-kakushi" style="display: none;">オセ<span onclick="showWinnerModal()" style="cursor: pointer;">ロ</span>-リドル</div>
         <div id="turnIndicator" class="turn-indicator">
             <div id="currentPlayerDisc" class="disc"></div>
             <span>の番です</span>
@@ -70,6 +72,17 @@
             <div class="modal-buttons">
                 <button onclick="confirmShowFullImage(false)" class="cancel-btn">キャンセル</button>
                 <button onclick="confirmShowFullImage(true)" class="confirm-btn">表示する</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="confirmWinnerModal" class="modal">
+        <div class="modal-content">
+            <h3>すごい！！！</h3>
+            <p>あなたの勝ちです！！！</p>
+            <div class="modal-buttons">
+                <button onclick="closeWinnerWindow()" class="confirm-btn">OK</button>
             </div>
         </div>
     </div>

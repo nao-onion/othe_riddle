@@ -19,6 +19,10 @@ function startGame() {
         uploadedImage = processedImageUrl;
         document.getElementById('settingsScreen').style.display = 'none';
         document.getElementById('gameScreen').style.display = 'block';
+        if (file.name === "meta3.png") {
+            document.getElementById('title').style.display = 'none';
+            document.getElementById('title-kakushi').style.display = 'block';
+        }
         initializeBoard();
     });
 }
@@ -334,6 +338,14 @@ function closeModal(modalId) {
 // リセット確認モーダルを表示
 function showResetConfirmation() {
     showModal('confirmModal');
+}
+
+function showWinnerModal() {
+    showModal('confirmWinnerModal')
+}
+
+function closeWinnerWindow() {
+    closeModal('confirmWinnerModal')
 }
 
 // 全体画像表示の確認モーダルを表示
