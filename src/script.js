@@ -5,6 +5,8 @@ let currentPlayer = 'black';
 let uploadedImage = null;
 let imageTimer = null;
 let countdownInterval = null;
+let blackCount = 2;
+let whiteCount = 2;
 
 function startGame() {
     if (!document.getElementById('imageUpload').files[0]) {
@@ -91,8 +93,9 @@ function initializeBoard() {
             board.appendChild(cell);
         }
     }
-    
+    currentPlayer = 'black'
     updateTurnIndicator();
+    updateDiscCount();
 }
 
 function makeMove(row, col) {
@@ -101,6 +104,7 @@ function makeMove(row, col) {
     gameBoard[row][col] = currentPlayer;
     flipDiscs(row, col);
     updateBoard();
+    updateDiscCount();
     
     document.getElementById('showImageBtn').style.display = 'block';
 }
@@ -213,8 +217,31 @@ function closeImage() {
     
     document.getElementById('closeImageBtn').style.display = 'none';
     document.getElementById('timerDisplay').style.display = 'none';
-    currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
+    const nextPlayer = currentPlayer === 'black' ? 'white' : 'black';
+
+    // 次のプレイヤーが有効な手を持っているか確認
+    if (!hasValidMove(nextPlayer)) {
+        // 現在のプレイヤーも有効な手がないか確認
+        if (!hasValidMove(currentPlayer)) {
+            alert('ゲーム終了！');
+            return;
+        }
+        alert('パスします');
+    }
+    currentPlayer = nextPlayer
+
     updateTurnIndicator();
+}
+
+function hasValidMove(player) {
+    for (let i = 0; i < boardSize; i++) {
+        for (let j = 0; j < boardSize; j++) {
+            if (!gameBoard[i][j] && isValidMove(i, j)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 function isValidMove(row, col) {
@@ -287,34 +314,23 @@ function updateTurnIndicator() {
     disc.className = 'disc ' + currentPlayer;
 }
 
-// function resetGame() {
-//     const isConfirmed = confirm('ゲームをリセットしますか？\n設定画面に戻ります。');
-    
-//     if (!isConfirmed) {
-//         return;
-//     }
-    
-//     if (imageTimer) {
-//         clearTimeout(imageTimer);
-//         imageTimer = null;
-//     }
-    
-//     if (countdownInterval) {
-//         clearInterval(countdownInterval);
-//         countdownInterval = null;
-//     }
-    
-//     document.getElementById('gameScreen').style.display = 'none';
-//     document.getElementById('settingsScreen').style.display = 'block';
-//     document.getElementById('imageUpload').value = '';
-//     document.getElementById('imageOverlay').style.display = 'none';
-//     document.getElementById('closeImageBtn').style.display = 'none';
-//     document.getElementById('showFullImageBtn').style.display = 'inline-block';
-//     document.getElementById('closeFullImageBtn').style.display = 'none';
-//     document.getElementById('timerDisplay').style.display = 'none';
-//     currentPlayer = 'black';
-//     updateTurnIndicator();
-// }
+function updateDiscCount() {
+    blackCount = 0;
+    whiteCount = 0;
+    for (let i = 0; i < boardSize; i++) {
+        for (let j = 0; j < boardSize; j++) {
+            if (gameBoard[i][j] === 'black') blackCount++;
+            if (gameBoard[i][j] === 'white') whiteCount++;
+        }
+    }
+    document.getElementById('turnIndicator').innerHTML = `
+        <div id="currentPlayerDisc" class="disc ${currentPlayer}"></div>
+        <span>の番です</span>
+        <div style="margin-left: 20px;">
+                ⚫: ${blackCount} ⚪: ${whiteCount}
+        </div>
+        `;
+    }
 
 
 // モーダル表示用の共通関数
